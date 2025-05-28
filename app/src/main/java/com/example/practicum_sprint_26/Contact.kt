@@ -1,7 +1,9 @@
 package com.example.practicum_sprint_26
 
+import androidx.compose.runtime.Immutable
 
 
+@Immutable
 data class Contact(
     val name: String, //Имя
     val surname: String? = null, //Отчество

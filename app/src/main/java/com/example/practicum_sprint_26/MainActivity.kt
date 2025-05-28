@@ -15,6 +15,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -68,25 +69,27 @@ fun ContactImage(resId: Int) {
 
 @Composable
 fun ContactName(
-    fn: String,
-    ln: String,
-    sn: String,
-    fav: Boolean
+    firstName: String,
+    lastName: String,
+    surName: String,
+    isFavorite: Boolean
 ) {
     Column(
         modifier = Modifier.fillMaxWidth(),
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
+        val firstSurName = remember { "$firstName $surName" }
+
         Text(
-            text = "$fn $sn",
+            text = firstSurName,
             style = MaterialTheme.typography.headlineSmall
         )
         Row {
             Text(
-                text = ln,
+                text = lastName,
                 style = MaterialTheme.typography.headlineLarge
             )
-            if (fav) {
+            if (isFavorite) {
                 Image(
                     painter = painterResource(id = android.R.drawable.star_big_on),
                     contentDescription = null,
@@ -147,12 +150,8 @@ fun ContactDetails(contact: Contact) {
                 if (
                     imageRes == 0 || imageRes == null
                 ) {
-                    Placeholder(
-                        getInitials(
-                            name,
-                            familyName
-                        )
-                    )
+                    val initials = remember { getInitials(name, familyName) }
+                    Placeholder(initials)
                 } else {
                     ContactImage(imageRes)
                 }
@@ -161,10 +160,10 @@ fun ContactDetails(contact: Contact) {
 
 
             ContactName(
-                fn = name,
-                ln = familyName,
-                sn = surname ?: "",
-                fav = isFavorite
+                firstName = name,
+                lastName = familyName,
+                surName = surname ?: "",
+                isFavorite = isFavorite
             )
 
 
