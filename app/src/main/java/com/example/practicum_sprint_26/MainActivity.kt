@@ -4,44 +4,205 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.Image
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.remember
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
+import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.tooling.preview.Preview
-import com.example.practicum_sprint_26.ui.theme.Practicum_Sprint_26Theme
+import androidx.compose.ui.unit.dp
 
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Practicum_Sprint_26Theme {
-                Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
-                    Greeting(
-                        name = "Android",
-                        modifier = Modifier.padding(innerPadding)
-                    )
-                }
-            }
+            ContactDetailsFull()
         }
     }
 }
 
+fun getInitials(fn: String, ln: String): String {
+    return "${fn.take(1)}${ln.take(1)}"
+}
+
 @Composable
-fun Greeting(name: String, modifier: Modifier = Modifier) {
-    Text(
-        text = "Hello $name!",
-        modifier = modifier
+fun Placeholder(initials: String) {
+    Box(
+        modifier = Modifier.padding(vertical = 16.dp),
+        contentAlignment = Alignment.Center
+    ) {
+        Icon(
+            modifier = Modifier.fillMaxWidth(),
+            painter = painterResource(id = R.drawable.circle),
+            contentDescription = null,
+            tint = Color.Gray
+        )
+        Text(
+            text = initials
+        )
+    }
+}
+
+@Composable
+fun ContactImage(resId: Int) {
+    Image(
+        modifier = Modifier.fillMaxWidth(),
+        alignment = Alignment.Center,
+        painter = painterResource(id = resId),
+        contentDescription = null
     )
 }
 
-@Preview(showBackground = true)
 @Composable
-fun GreetingPreview() {
-    Practicum_Sprint_26Theme {
-        Greeting("Android")
+fun ContactName(
+    firstName: String,
+    lastName: String,
+    surName: String,
+    isFavorite: Boolean
+) {
+    Column(
+        modifier = Modifier.fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        val firstSurName = remember { "$firstName $surName" }
+
+        Text(
+            text = firstSurName,
+            style = MaterialTheme.typography.headlineSmall
+        )
+        Row {
+            Text(
+                text = lastName,
+                style = MaterialTheme.typography.headlineLarge
+            )
+            if (isFavorite) {
+                Image(
+                    painter = painterResource(id = android.R.drawable.star_big_on),
+                    contentDescription = null,
+                )
+            }
+
+        }
+
     }
+}
+
+@Composable
+fun InfoRow(key: String, value: String) {
+    Row(
+        modifier = Modifier
+            .padding(top = 20.dp)
+            .fillMaxWidth(),
+        verticalAlignment = Alignment.CenterVertically,
+
+        ) {
+        Row(
+            modifier = Modifier.weight(0.5f),
+            horizontalArrangement = Arrangement.End,
+        ) {
+            Text(
+                text = "$key:",
+                fontStyle = FontStyle.Italic,
+            )
+
+        }
+        Row(
+            modifier = Modifier
+                .weight(0.5f)
+                .padding(start = 5.dp),
+            horizontalArrangement = Arrangement.Start,
+        ) {
+            Text(
+                text = value,
+            )
+        }
+    }
+}
+
+
+@Composable
+fun ContactDetails(contact: Contact) {
+
+    Column(
+        Modifier.fillMaxWidth()
+    ) {
+
+        with(contact) {
+
+            Box(
+                modifier = Modifier.padding(vertical = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                if (
+                    imageRes == 0 || imageRes == null
+                ) {
+                    val initials = remember { getInitials(name, familyName) }
+                    Placeholder(initials)
+                } else {
+                    ContactImage(imageRes)
+                }
+            }
+
+
+
+            ContactName(
+                firstName = name,
+                lastName = familyName,
+                surName = surname ?: "",
+                isFavorite = isFavorite
+            )
+
+
+            if (!email.isNullOrEmpty()) InfoRow(stringResource(id = R.string.email), email)
+            InfoRow(stringResource(id = R.string.phone), phone)
+            InfoRow(stringResource(id = R.string.address), address)
+        }
+
+    }
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun ContactDetailsFull() {
+    ContactDetails(
+        Contact(
+            name = "Кот",
+            surname = "Мурлыкович",
+            familyName = "Блохастов",
+            isFavorite = true,
+            email = "i_hate@really.ru",
+            phone = "+7 4812 55 22 86",
+            imageRes = R.drawable.image_01,
+            address = "Россия, Смоленская обл, г. Смоленск, ул. Рыленкова, д. 404"
+
+        )
+    )
+}
+
+@Preview(showBackground = true, showSystemUi = true)
+@Composable
+fun ContactDetailsSmall() {
+    ContactDetails(
+        Contact(
+            name = "Хомяк",
+            familyName = "Редкоедов",
+            isFavorite = false,
+            phone = "+7 800 555 35 35",
+            address = "Италия"
+        )
+    )
 }
